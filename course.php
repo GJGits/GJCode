@@ -34,30 +34,54 @@ include('nav.php') ?>
 <?php
 
 $courseName = strtolower(explode(".", $_GET['name'])[0]);
+$conn = mysqli_connect("localhost", "root", "", "gjcode");
 
-$connection = mysqli_connect("localhost", "root", "", "gjcode");
-
-if (!$connection) {
-    echo mysqli_errno($connection);
+if (!$conn) {
+    echo mysqli_errno($conn);
 }
 
-$preparedstatement = mysqli_prepare($connection, "select nome, path from video where nome_corso=? order by posizione");
-mysqli_stmt_bind_param($preparedstatement, "s", $courseName);
-mysqli_stmt_bind_result($preparedstatement, $nome_video, $path_video);
+$prep = mysqli_prepare($conn, "select disponibile from corso where nome = ?");
+mysqli_stmt_bind_param($prep, "s", $courseName);
+mysqli_stmt_execute($prep);
+mysqli_stmt_bind_result($prep, $disp);
+mysqli_stmt_fetch($prep);
 
-$to_show = '<div class="container-fluid"><div class="row v-1"><div class="list-group col-2">';
+if ($disp === 'si') {
 
-while (mysqli_stmt_fetch($preparedstatement)) {
-    $to_show .= '<button type="button" class="list-group-item list-group-item-action">' . $nome_video . '</button>';
-}
+    mysqli_stmt_close($prep);
+    mysqli_close($conn);
 
-$to_show .= '</div><div class="embed-responsive embed-responsive-16by9 offset-2 col-6 ">
+    $connection = mysqli_connect("localhost", "root", "", "gjcode");
+
+    if (!$connection) {
+        echo mysqli_errno($connection);
+    }
+
+    $preparedstatement = mysqli_prepare($connection, "select nome, path from video where nome_corso = ? order by posizione");
+    mysqli_stmt_bind_param($preparedstatement, "s", $courseName);
+    mysqli_stmt_execute($preparedstatement);
+    mysqli_stmt_bind_result($preparedstatement, $nome_video, $path_video);
+
+    $to_show = '<div class="container-fluid"><div class="row v-1"><div class="list-group col-2">';
+
+    $counter = 0;
+    while (mysqli_stmt_fetch($preparedstatement)) {
+        if ($counter === 0)
+            $to_show .= '<button type="button" class="list-group-item list-group-item-action active">' . $nome_video . '</button>';
+        else
+            $to_show .= '<button type="button" class="list-group-item list-group-item-action">' . $nome_video . '</button>';
+        $counter++;
+    }
+
+    $to_show .= '</div><div class="embed-responsive embed-responsive-16by9 offset-2 col-6 ">
   <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/zpOULjyy-n8?rel=0" allowfullscreen></iframe>
 </div>';
 
-echo $to_show;
+    echo $to_show;
 
-// TODO: check the course availability from the db
+} else echo '<div class="alert alert-info offset-3 col-6 v-1" role="alert">
+  Sorry, this course is not avaible yet. <a href="#">Click here</a>  to show me your interest
+</div>';
 
 
 ?>
