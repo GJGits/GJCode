@@ -1,0 +1,34 @@
+@media screen {
+
+    /*NAV*/
+    nav li:hover {
+        background-color: #c5d4df;
+    }
+
+    nav li a:hover {
+        color: #e3f2fd;
+    }
+
+    /*V-SPACE*/
+    .v-1 {
+        margin-top: 8.33%;
+    }
+
+    .bg-dark-light {
+        background-color: #e3f2fd;
+    }
+
+    .div-materiale {
+        border: 1px solid #6c757d;
+        border-radius: 1%;
+    }
+
+}
+
+@media screen and (max-width: 768px) {
+
+    .hide-on-smartphone {
+        display: none;
+    }
+
+}
